@@ -10,7 +10,7 @@ services:
     ports:
       - "5672:5672"
     networks:
-      - backend
+      - gateway_backend
   rpc:
     container_name: shipments
     build: .
@@ -21,7 +21,7 @@ services:
     ports:
       - "8080:8090"
     networks:
-      - backend
+      - gateway_backend
     environment:
         RABBIT_PASSWORD: "guest"
         RABBIT_USER: "guest"
@@ -30,5 +30,5 @@ services:
         RABBIT_MANAGEMENT_PORT: "15672"
 
 networks:
-  backend:
-    driver: bridge
+  gateway_backend:
+    external: true
