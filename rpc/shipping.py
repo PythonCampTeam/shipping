@@ -1,7 +1,9 @@
+import json
 from nameko.rpc import rpc
+import shippo
 
 
-class Shipping(object):
+class ShippingRPC(object):
     """ this class make shipping request to add cost to trash
     Args:
         name(str): The name shipping company
@@ -13,6 +15,16 @@ class Shipping(object):
 
     @rpc
     def service_state(self, **kwargs):
-        doc_class = self.__dict__
-        return {self.__class__.__name__: doc_class,
-                'docs': self.__class__.__doc__}
+        address1 = shippo.Address.create(
+            name='John Smith',
+            street1='6512 Greene Rd.',
+            street2='',
+            company='Initech',
+            phone='+1 234 346 7333',
+            city='Woodridge',
+            state='IL',
+            zip='60517',
+            country='US',
+            metadata='Customer ID 123456'
+        )
+        return json.dumps(address1)
