@@ -4,31 +4,22 @@ volumes:
   ipython_history: {}
 
 services:
-  rabbit:
-    container_name: rabbit-day7
-    image: rabbitmq:3.6.5
-    ports:
-      - "5672:5672"
-    networks:
-      - gateway_backend
   rpc:
     container_name: shipments
     build: .
-    depends_on:
-      - rabbit
-    links:
-      - "rabbit:rabbit-day7"
     ports:
       - "8080:8090"
     networks:
       - gateway_backend
+    external_links:
+      - rabbit-day7:rabbit
     environment:
-        RABBIT_PASSWORD: "guest"
-        RABBIT_USER: "guest"
-        RABBIT_HOST: "rabbit"
-        RABBIT_PORT: "5672"
-        RABBIT_MANAGEMENT_PORT: "15672"
-
+        - RABBIT_PASSWORD=guest
+        - RABBIT_USER=guest
+        - RABBIT_HOST=rabbit
+        - RABBIT_PORT=5672
+        - RABBIT_MANAGEMENT_PORT=15672
+        - SETTINGS_MODULE=service.config.settings.common
 networks:
   gateway_backend:
     external: true
