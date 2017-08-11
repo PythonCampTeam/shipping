@@ -15,16 +15,16 @@ class ShippingRPC(object):
 
     @rpc
     def service_state(self, **kwargs):
-        address1 = shippo.Address.create(
-            name='John Smith',
-            street1='6512 Greene Rd.',
-            street2='',
-            company='Initech',
-            phone='+1 234 346 7333',
-            city='Woodridge',
-            state='IL',
-            zip='60517',
-            country='US',
-            metadata='Customer ID 123456'
-        )
-        return json.dumps(address1)
+ #       address1 = shippo.Address.create(
+ #           name='John Smith',
+ #           street1='6512 Greene Rd.',
+ #           street2='',
+ #           company='Initech',
+ #           phone='+1 234 346 7333',
+ #           city='Woodridge',
+ #           state='IL',
+ #           zip='60517',
+ #           country='US',
+ #           metadata='Customer ID 123456'
+ #       )
+        return json.dumps({'id': 42})
