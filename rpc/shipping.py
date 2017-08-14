@@ -1,30 +1,40 @@
 import json
 from nameko.rpc import rpc
-import shippo
 
 
 class ShippingRPC(object):
     """ this class make shipping request to add cost to trash
     Args:
-        name(str): The name shipping company
-        aditional(dict): information about tovar
+        shipments(dict): information about address of the shipment
+        parcel(dict): information about products
     Return:
-        cost(int): total payement for dostavka
+        cost(int): total payment for shipping
         """
     name = 'ShippingRPC'
 
     @rpc
     def service_state(self, **kwargs):
- #       address1 = shippo.Address.create(
- #           name='John Smith',
- #           street1='6512 Greene Rd.',
- #           street2='',
- #           company='Initech',
- #           phone='+1 234 346 7333',
- #           city='Woodridge',
- #           state='IL',
- #           zip='60517',
- #           country='US',
- #           metadata='Customer ID 123456'
- #       )
         return json.dumps({'id': 42})
+
+    @rpc
+    def shipping_add(self, **kwargs):
+        shipments = json.loads(kwargs.get('address_to'))
+        parcel = json.loads(kwargs.get('parcel'))
+
+        schema_shipments = {'name': {'type': 'string'},
+                            'street1': {'type': 'string'},
+                            'city': {'type': 'string'},
+                            'state': {'type': 'string'},
+                            'zip': {'type': 'string'},
+                            'country': {'type': 'string'},
+                            'phone': {'type': 'string'}
+                            }
+        schema_parcel = {'length': {'type': 'string'},
+                         'width': {'type': 'string'},
+                         'height': {'type': 'string'},
+                         'distance_unit': {'type': 'string'},
+                         'weight': {'type': 'string'},
+                         'mass_unit': {'type': 'string'}
+                        }
+
+        return json.dumps({'id':43})
