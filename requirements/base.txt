@@ -1,2 +1,5 @@
 nameko
 shippo
+cerberus
+requests
+mock

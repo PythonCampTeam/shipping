@@ -19,7 +19,8 @@ services:
         - RABBIT_HOST=rabbit
         - RABBIT_PORT=5672
         - RABBIT_MANAGEMENT_PORT=15672
-        - SETTINGS_MODULE=service.config.settings.common
+        - SETTINGS_MODULE=shipping
+        - PYTHONPATH=${PYTHONPATH}:/shipping
 networks:
   gateway_backend:
     external: true
