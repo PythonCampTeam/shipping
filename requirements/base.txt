@@ -1,3 +1,8 @@
 nameko
 shippo
 cerberus
+<<<<<<< HEAD
+=======
+requests
+mock
+>>>>>>> dbd9b8b1311d82172fda847d1ede7c97aff4b423

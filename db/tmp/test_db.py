@@ -38,7 +38,11 @@ a = StoreDB(data_stored='address_to', data_key='object_id')
 print(a)
 a.add(address_to1)
 
+<<<<<<< HEAD
 a.update(address_to=address_to2)
+=======
+a.add(address_to2)
+>>>>>>> dbd9b8b1311d82172fda847d1ede7c97aff4b423
 
 print(a.lower(sort='zip'), '1*'*15)
 print(a.upper(sort='zip'), '2*'*15)
