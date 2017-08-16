@@ -1,10 +1,6 @@
 import json
 import shippo
-<<<<<<< HEAD
 from config.settings.common import security as security_settings
-=======
-#from config.settings.common import security as security_settings
->>>>>>> dbd9b8b1311d82172fda847d1ede7c97aff4b423
 
 
 class Shippo(object):
@@ -22,11 +18,7 @@ class Shippo(object):
 
     """
     def __init__(self, **kwargs):
-<<<<<<< HEAD
         security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
-=======
-        shippo.api_key = 'shippo_test_55dfc05531b49ed2e711fa2cca863d72c68f87b7' #security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
->>>>>>> dbd9b8b1311d82172fda847d1ede7c97aff4b423
         self.address_from = kwargs.get('address_from')
         self.address_to = kwargs.get('address_to')
         self.parcels = kwargs.get('parcels')

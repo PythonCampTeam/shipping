@@ -40,11 +40,7 @@ class StoreDB(object):
         self.db = {}
         self.data_stored = kwargs.get('data_stored')
         self.data_key = kwargs.get('data_key')
-<<<<<<< HEAD
 #        print(self.data_key, self.data_stored)
-=======
-        print(self.data_key, self.data_stored)
->>>>>>> dbd9b8b1311d82172fda847d1ede7c97aff4b423
 
     def add(self, other):
         object_id = other.get(self.data_key)
