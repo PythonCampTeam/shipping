@@ -1,5 +1,6 @@
+import json
 import shippo
-from shipping.config.settings.common import security as security_settings
+from config.settings.common import security as security_settings
 
 
 class Shippo(object):
@@ -17,19 +18,19 @@ class Shippo(object):
 
     """
     def __init__(self, **kwargs):
-        shippo.api_key = security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
+        security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
         self.address_from = kwargs.get('address_from')
         self.address_to = kwargs.get('address_to')
         self.parcels = kwargs.get('parcels')
 
     def create_shipment(self):
         shipment = shippo.Shipment.create(
-            address_from=self.address_from,
-            address_to=self.address_to,
-            parcels=[self.parcels],
-            async=False
-        )
-        return shipment
+                                                address_from=self.address_from,
+                                                address_to=self.address_to,
+                                                parcels=[self.parcels],
+                                                async=False
+                                                )
+        return json.dumps(shipment)
 
     def create_transaction(self, **kwargs):
         shipment = kwargs.get('shipment')
@@ -37,11 +38,12 @@ class Shippo(object):
 
         # Purchase the desired rate.
         transaction = shippo.Transaction.create(
-            rate=rate.object_id,
-            label_file_type="PDF",
-            async=False)
+                                            rate=rate.object_id,
+                                            label_file_type="PDF",
+                                            async=False)
 
         # Retrieve label url and tracking number or error message
+
         if transaction.status == "SUCCESS":
             print(transaction.label_url)
             print(transaction.tracking_number)
@@ -83,9 +85,7 @@ parcel = {
     "weight": "2",
     "mass_unit": "lb",
 }
-
 test = Shippo(address_from=address_from, parcels=parcel, address_to=address_to)
+test1 = Shippo(address_from=address_from, parcels=parcel, address_to=address_to)
 ship = test.create_shipment()
-print(ship.rates[0], '#'*25)
-#print(test.create_transaction(shipment=ship))
-#print(test)
+print(ship)
