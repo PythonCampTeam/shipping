@@ -1,4 +1,5 @@
 import operator
+import time
 
 
 class StoreDB(object):
@@ -40,10 +41,9 @@ class StoreDB(object):
         self.db = {}
         self.data_stored = kwargs.get('data_stored')
         self.data_key = kwargs.get('data_key')
-#        print(self.data_key, self.data_stored)
 
     def add(self, other):
-        object_id = other.get(self.data_key)
+        object_id = other.get(self.data_key, str(time.time()))
         if isinstance(other, dict):
             if other not in self.db.items():
                 self.db[object_id] = other
@@ -62,23 +62,17 @@ class StoreDB(object):
             del self.db[object_id]
         return self.db
 
-    def lower(self, **kwargs):
-        sort_value = kwargs.get('sort')
-        if any(sort_value in _ for _ in self.db.values()):
+    # TODO change name methods
+    def sorting_items(self, sort='name', reverse=False):
+        if any(sort in _ for _ in self.db.values()):
             return sorted(self.db.values(),
-                          key=operator.itemgetter(sort_value))
-
-    def upper(self, **kwargs):
-        sort_value = kwargs.get('sort')
-        if any(sort_value in _ for _ in self.db.values()):
-            return sorted(self.db.values(),
-                          key=operator.itemgetter(sort_value),
-                          reverse=True)
+                          key=operator.itemgetter(sort),
+                          reverse=reverse)
 
     def get_item(self, **kwargs):
         item = kwargs.get('object_id')
         return self.db[item]
 
     def get_items(self):
-        return self.db.values()
+        return self.db.items()
 

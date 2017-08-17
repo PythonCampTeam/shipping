@@ -3,7 +3,9 @@ import cerberus
 import shippo
 from nameko.rpc import rpc
 import db.database as db
-#import integration.goshippo as shippo
+from config.settings.common import company as storehouse
+from config.settings.common import security as security_settings
+from nameko.timer import timer
 
 
 class ShippingRPC(object):
@@ -16,6 +18,7 @@ class ShippingRPC(object):
         """
     name = 'ShippingRPC'
     store_db = db.StoreDB(data_stored='address_to', data_key='object_id')
+    temp_db = db.StoreDB(data_stored='address_to_tmp', data_key='object_id')
 
     @rpc
     def service_state(self, **kwargs):
@@ -24,6 +27,7 @@ class ShippingRPC(object):
     @rpc
     def shipping_add(self, **kwargs):
         shipments = json.loads(kwargs.get('address_to'))
+        session = kwargs.get('session')
         parcel = kwargs.get('parcel')
 
         schema_shipments = {'name': {'type': 'string'},
@@ -45,17 +49,10 @@ class ShippingRPC(object):
 
         v = cerberus.Validator()
         if v(shipments, schema_shipments):
-            shippo.verify_ssl_certs = True
-            shippo.api_key = 'shippo_test_55dfc05531b49ed2e711fa2cca863d72c68f87b7'
-
-            shipment = shippo.Shipment.create(address_from=shipments,
-                                              address_to=shipments,
-                                              parcels=parcel)
-
-            result = json.dumps(shipment)
-            self.store_db.add(json.loads(result))
-            return json.dumps(list(self.store_db.get_items()))
-        return {}
+            shippo.verify_ssl_certs = False
+            self.temp_db.add(shipments)
+            print('++++')
+        return {session: shipments}
 
     @rpc
     def shipping_parcel(self, **kwargs):
@@ -66,9 +63,36 @@ class ShippingRPC(object):
                          'weight': {'type': 'string'},
                          'mass_unit': {'type': 'string'}
                         }
-        return
+        return schema_parcel
 
     @rpc
     def shippments(self, **kwarg):
+        sort = kwarg.get('sort', 'name')
+        print('#'*25, sort)
+        sorting_items = self.store_db.sorting_items(sort='name', reverse=True)
+        if sorting_items:
+            return json.dumps(list(sorting_items))
+        return {'empty': 'empty'}
 
-        return json.dumps(list(self.store_db.get_items()))
+    @timer(interval=1)
+    def sprinter(self):
+        """
+            method work infinity and check temp db, and take
+            from temp db max timestamp item
+        Return:
+             None
+        """
+        shippo.verify_ssl_certs = False
+        shippo.api_key = security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
+        test_items = self.temp_db.get_items()
+        if test_items:
+            address_to = max(dict(self.temp_db.get_items()))
+            before_res = self.temp_db.get_item(object_id=address_to)
+            self.temp_db.delete(object_id=address_to)
+            result = shippo.Address.create(**before_res)
+            print(result)
+            self.store_db.add(result)
+
+
+
+

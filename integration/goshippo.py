@@ -17,8 +17,9 @@ class Shippo(object):
             Return:
 
     """
-    def __init__(self, **kwargs):
-        security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
+    def __init__(self, *args, **kwargs):
+
+        shippo.api_key = security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
         self.address_from = kwargs.get('address_from')
         self.address_to = kwargs.get('address_to')
         self.parcels = kwargs.get('parcels')
@@ -85,7 +86,7 @@ parcel = {
     "weight": "2",
     "mass_unit": "lb",
 }
-test = Shippo(address_from=address_from, parcels=parcel, address_to=address_to)
-test1 = Shippo(address_from=address_from, parcels=parcel, address_to=address_to)
-ship = test.create_shipment()
-print(ship)
+#test = Shippo(address_from=address_from, parcels=parcel, address_to=address_to)
+#test1 = Shippo(address_from=address_from, parcels=parcel, address_to=address_to)
+#ship = test.create_shipment()
+#print(ship)
