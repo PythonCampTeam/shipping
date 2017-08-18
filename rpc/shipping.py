@@ -36,7 +36,8 @@ class ShippingRPC(object):
                             'state': {'type': 'string'},
                             'zip': {'type': 'string'},
                             'country': {'type': 'string'},
-                            'phone': {'type': 'string'}
+                            'phone': {'type': 'string'},
+                            'email': {'type': 'string'}
                             }
         parcel = {
             "length": "5",
@@ -51,7 +52,6 @@ class ShippingRPC(object):
         if v(shipments, schema_shipments):
             shippo.verify_ssl_certs = False
             self.temp_db.add(shipments)
-            print('++++')
         return {session: shipments}
 
     @rpc
@@ -66,30 +66,56 @@ class ShippingRPC(object):
         return schema_parcel
 
     @rpc
-    def shippments(self, **kwarg):
-        sort = kwarg.get('sort', 'name')
-        print('#'*25, sort)
-        sorting_items = self.store_db.sorting_items(sort='name', reverse=True)
-        if sorting_items:
+    def shipments(self, **kwarg):
+        sort = kwarg.get('order_by', 'name')
+        if not sort:
+            sorting_items = self.store_db.get_items()
             return json.dumps(list(sorting_items))
-        return {'empty': 'empty'}
+
+        if sort.startswith('-'):
+            sort = sort.strip('-')
+            sorting_items = self.store_db.sorting_items(order_by=sort,
+                                                        reverse=False)
+            return json.dumps(list(sorting_items))
+        sorting_items = self.store_db.sorting_items(order_by=sort,
+                                                    reverse=True)
+        return json.dumps(list(sorting_items))
+
+    @rpc
+    def get_rates(self, **kwargs):
+        """
+            method return rates of shipment
+            Kwargs:
+                object_id(str): object_id string
+                object_rates(str): currency of shipment
+        """
+        object_id = kwargs.get('object_id', None)
+        object_rates = kwargs.get('object_rates', None)
+        if object_id:
+            print('#'*15, object_id)
+            rates_object = self.store_db.get_item(object_id=object_id)
+
+            return json.dumps({object_id: rates_object})
 
     @timer(interval=1)
     def sprinter(self):
         """
             method work infinity and check temp db, and take
-            from temp db max timestamp item
+            from temp db max timestamp item and create address, and delete
+            item from temp store.
         Return:
              None
         """
         shippo.verify_ssl_certs = False
-        shippo.api_key = security_settings.TOKEN_GOSHIPPO['TEST_TOKEN']
+        shippo.api_key = security_settings.TOKEN_GOSHIPPO['LIVE_TOKEN']
         test_items = self.temp_db.get_items()
+
         if test_items:
             address_to = max(dict(self.temp_db.get_items()))
             before_res = self.temp_db.get_item(object_id=address_to)
-            self.temp_db.delete(object_id=address_to)
             result = shippo.Address.create(**before_res)
+            if result:
+                self.temp_db.delete(object_id=address_to)
             print(result)
             self.store_db.add(result)
 

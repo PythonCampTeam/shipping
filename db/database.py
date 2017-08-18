@@ -62,16 +62,21 @@ class StoreDB(object):
             del self.db[object_id]
         return self.db
 
-    # TODO change name methods
-    def sorting_items(self, sort='name', reverse=False):
-        if any(sort in _ for _ in self.db.values()):
+    def sorting_items(self, order_by='name', reverse=False):
+        if any(order_by in _ for _ in self.db.values()):
             return sorted(self.db.values(),
-                          key=operator.itemgetter(sort),
+                          key=operator.itemgetter(order_by),
                           reverse=reverse)
+        return None
 
-    def get_item(self, **kwargs):
+    def get_item(self, *args, **kwargs):
         item = kwargs.get('object_id')
-        return self.db[item]
+        try:
+            result = self.db[item]
+            return result
+        except KeyError:
+            pass
+        return None
 
     def get_items(self):
         return self.db.items()
