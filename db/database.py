@@ -69,14 +69,8 @@ class StoreDB(object):
                           reverse=reverse)
         return None
 
-    def get_item(self, *args, **kwargs):
-        item = kwargs.get('object_id')
-        try:
-            result = self.db[item]
-            return result
-        except KeyError:
-            pass
-        return None
+    def get_item(self, object_id):
+        return self.db.get(object_id)
 
     def get_items(self):
         return self.db.items()
