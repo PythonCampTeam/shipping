@@ -1,4 +1,4 @@
-from shipping.integration.goshippo import Shippo
+from shipping.integration.tmp.goshippo import Shippo
 
 address_from = {
     "name":"Mr Hippo",
