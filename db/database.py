@@ -85,6 +85,10 @@ class ItemField(abc.ABC):
     def __init__(self, object_id):
         self. object_id = object_id
 
+    def __repr__(self):
+        return json.dumps(self.__dict__)
+
+
     @property
     def item(self):
         return self

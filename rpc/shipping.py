@@ -101,7 +101,9 @@ class ShippingRPC(object):
 
     @rpc
     def shipments(self, order_by):
+
         if not order_by:
+
             sorting_items = self.shipment_db.sorting_items(order_by=None,
                                                            reverse=False)
             return str(sorting_items)
