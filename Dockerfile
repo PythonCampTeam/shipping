@@ -1,6 +1,7 @@
 FROM python:3.5.3
 ADD . /shipping
 
+
 WORKDIR /shipping
 RUN chmod +x /shipping/run.sh
 

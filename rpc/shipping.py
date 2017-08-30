@@ -1,12 +1,10 @@
 import json
-import cerberus
 import shippo
 from nameko.rpc import rpc
 import stripe
-import db.database as db
-from config.settings.common import security as security_settings
-from config.settings import local as store_settings
-from nameko.timer import timer
+import shipping.db.database as db
+from shipping.config.settings.common import security as security_settings
+from shipping.config.settings import local as store_settings
 
 
 def traverse(response_object=None):
@@ -167,9 +165,6 @@ class ShippingRPC(object):
 
                 self.shipment_db.add(shipment_field)
 
-#                rate['object_id'] = shipment.object_id
-#                rate[shipment.object_id] = shipment.rates
-
                 self.rates_db.add(shipment_rates)
 
             for rate_item in shipment.rates:
@@ -209,14 +204,15 @@ class ShippingRPC(object):
                 async=False)
 
         if shipment_id:
-            rate = self.rates_db.get_item(object_id=shipment_id)
-            for x in rate.rate_items:
-                shipment_rates.append(x.get('object_id'))
+            rates = self.rates_db.get_item(object_id=shipment_id)
+            if rates:
+                for rate_item in rates.rate_items:
+                    shipment_rates.append(rate_item.object_id)
 
-            transaction = shippo.Transaction.create(
-                rate=shipment_rates[1],
-                label_file_type="PDF",
-                async=False)
+                transaction = shippo.Transaction.create(
+                                        rate=shipment_rates[1],
+                                        label_file_type="PDF",
+                                        async=False)
 
             # Retrieve label url and tracking number or error message
         if hasattr(transaction, 'status'):

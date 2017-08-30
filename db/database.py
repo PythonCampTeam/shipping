@@ -7,7 +7,6 @@ class StoreDB(object):
     """
         class for storing and sorting data from micro services
         Methods:
-            __iadd__: function append store
                 Args:
                     other(dict): information to save in db
                 Return:
@@ -87,7 +86,6 @@ class ItemField(abc.ABC):
 
     def __repr__(self):
         return json.dumps(self.__dict__)
-
 
     @property
     def item(self):

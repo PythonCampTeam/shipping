@@ -19,3 +19,4 @@ six==1.10.0
 urllib3==1.22
 Werkzeug==0.12.2
 wrapt==1.10.11
+stripe

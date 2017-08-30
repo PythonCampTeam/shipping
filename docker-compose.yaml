@@ -21,7 +21,7 @@ services:
         - RABBIT_PORT=5672
         - RABBIT_MANAGEMENT_PORT=15672
         - SETTINGS_MODULE=shipping
-        - PYTHONPATH=${PYTHONPATH}:/shipping
+        - PYTHONPATH=${PYTHONPATH}:/
 networks:
   gateway_backend:
     external: true
