@@ -1,7 +1,7 @@
 import abc
 import json
 import operator
-
+from collections import defaultdict
 
 class StoreDB(object):
     """
@@ -73,6 +73,11 @@ class StoreDB(object):
         return self.db.items()
 
 
+class MyEncoder(json.JSONEncoder):
+    def default(self, o):
+        return o.__dict__
+
+
 class ItemField(abc.ABC):
     """ Class for store item in db
      args:
@@ -101,7 +106,7 @@ class ObjDict(dict):
         self[attr] = value
 
 
-class ItemShipping(ItemField):
+class ItemShipping(ItemField, MyEncoder):
     """class for store shipments in db """
     def __init__(self, object_id, address_to):
         super().__init__(object_id)

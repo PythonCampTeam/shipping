@@ -95,44 +95,67 @@ class ShippingRPC(object):
 
     @rpc
     def service_state(self, **kwargs):
+        """ this method use for testing status of service, if service work,
+        will be return id : 42
+        Return:
+            json: simple test request from service.
+        """
         return json.dumps({'id': 42})
 
     @rpc
     def shipments(self, order_by):
+        """ method for return information about shipments in store db,
+        method can return sorted information, if attribute order_by
+        is not None
+        Args:
+            order_by(str): sorting string, supported descent if symbol
+            minus in string
+        Return:
+            sorted list
+        """
 
         if not order_by:
 
             sorting_items = self.shipment_db.sorting_items(order_by=None,
                                                            reverse=False)
-            return str(sorting_items)
+            return [x.__dict__ for x in sorting_items]
+
         if order_by.startswith('-'):
             order_by = order_by.strip('-')
             sorting_items = self.shipment_db.sorting_items(order_by=order_by,
                                                            reverse=False)
-            return str(sorting_items)
+            return [x.__dict__ for x in sorting_items]
 
         sorting_items = self.shipment_db.sorting_items(order_by=order_by,
                                                        reverse=True)
-        return str(sorting_items)
+        return [x.__dict__ for x in sorting_items]
 
     @rpc
-    def shipments_rates(self, **kwargs):
+    def shipments_rates(self, object_id, object_currency):
         """
             method return rates of shipment
-            Kwargs:
+            Args:
                 object_id(str): object_id string of shipment
+                object_currency(str): currency of rates
             Return:
                 dict: return data from stored db of rates
         """
-        object_id = kwargs.get('object_id', None)
         if object_id:
             rates_object = self.rates_db.get_item(object_id=object_id)
+
             if rates_object:
                 return str(rates_object)
 
     @rpc
     def shipments_create(self, order=None):
-        """method take order from cart service and create shipment"""
+        """method take order from stripe, in moment order create,
+         and append information about shipping
+         Args:
+             order(json): json object(stripe.Order) from stripe
+                        service
+        Return:
+            dict: returned dict object with appended information.
+         """
         shipping_methods = []
         rate_items = {}
 
@@ -140,8 +163,6 @@ class ShippingRPC(object):
             "type": "exact",
             "date": "2017-08-28"
         }
-        # take order for testing
-        # print('###', order, '###')
         order = traverse(order)
 
         # package_dimensions
@@ -149,8 +170,6 @@ class ShippingRPC(object):
             address_status, address_to = address_validation(order)
             parcel = pack_parcel(order['items'])
             if parcel and address_status:
-                # TODO: add instance ItemField
-
                 shipment = shippo.Shipment.create(
                                     address_from=store_settings.ADDRESS_FROM,
                                     address_to=address_to,
@@ -170,7 +189,7 @@ class ShippingRPC(object):
             for rate_item in shipment.rates:
                 rate_items['id'] = rate_item.object_id
                 rate_items['amount'] = int(float(rate_item.amount) * 100)
-                rate_items['description'] = rate_item.duration_terms
+                rate_items['description'] = rate_item.servicelevel.name
                 rate_items['currency'] = rate_item.currency.lower()
                 rate_items['delivery_estimate'] = delivery_estimate
                 shipping_methods.append(rate_items)
@@ -186,18 +205,18 @@ class ShippingRPC(object):
 
     @rpc
     def shipment_transaction(self, shipment_id=None, order=None):
-        """
-            Method wait payment information from micro-service payments
-                    Kwargs:
-                        order_status(str): status order changed when charge
-                        order_id(str): id of order before stored in db
-                    Return:
-                        label(url): shipment label
+        """Method wait payment information from micro-service payments
+        Args:
+            shipment_id(str): object_id from object(stripe.Order),
+                            selected_shipment_method stored in db
+            order(object): order object(stripe.Order)
+        Return:
+            label(url): shipment label, and store this label in db.
         """
         shipment_rates = []
         transaction = None
         if order and shipment_id:
-
+            order = stripe.Order.construct_from(order, '')
             transaction = shippo.Transaction.create(
                 rate=order.selected_shipping_method,
                 label_file_type="PDF",
@@ -214,7 +233,7 @@ class ShippingRPC(object):
                                         label_file_type="PDF",
                                         async=False)
 
-            # Retrieve label url and tracking number or error message
+        # Retrieve label url and tracking number or error message
         if hasattr(transaction, 'status'):
             if transaction.status == "SUCCESS":
                 shipment_label = db.ItemLabel(object_id=shipment_id,
@@ -234,5 +253,5 @@ class ShippingRPC(object):
                 label_url(str): returned label of shipment
         """
         if object_id:
-            return str(self.label_db.get_item(object_id=object_id))
+            return self.label_db.get_item(object_id=object_id)
         return None
